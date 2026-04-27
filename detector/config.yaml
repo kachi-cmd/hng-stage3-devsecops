@@ -1,0 +1,26 @@
+slack:
+  webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+
+log:
+  nginx_access_log: "/var/log/nginx/hng-access.log"
+  audit_log: "/var/log/detector/audit.log"
+
+detection:
+  sliding_window_seconds: 60          # deque window for per-IP and global tracking
+  baseline_window_minutes: 30         # rolling window for baseline computation
+  baseline_recalc_interval_seconds: 60
+  z_score_threshold: 3.0
+  spike_multiplier: 5.0               # rate > 5x mean also triggers anomaly
+  error_rate_multiplier: 3.0          # tighten thresholds if 4xx/5xx rate is 3x baseline
+  min_requests_for_baseline: 10       # minimum data points before baseline is trusted
+  per_second_floor: 1.0               # floor mean so we never divide by near-zero
+  error_rate_floor: 0.05
+
+blocking:
+  unban_schedule_minutes: [10, 30, 120]  # backoff schedule; after 3rd offence -> permanent
+  alert_within_seconds: 10
+
+dashboard:
+  port: 8080
+  refresh_seconds: 3
+  top_n_ips: 10

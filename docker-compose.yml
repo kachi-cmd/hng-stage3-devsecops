@@ -1,0 +1,95 @@
+version: "3.9"
+
+# Named volume shared between Nginx (writer) and the detector (reader)
+volumes:
+  HNG-nginx-logs:
+    driver: local
+  nextcloud-data:
+    driver: local
+  nextcloud-db:
+    driver: local
+
+services:
+  # ----------------------------------------------------------------
+  # Nginx reverse proxy
+  # Writes JSON access logs to the shared HNG-nginx-logs volume.
+  # ----------------------------------------------------------------
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: hng-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - HNG-nginx-logs:/var/log/nginx        # WRITE access
+    depends_on:
+      - nextcloud
+    restart: unless-stopped
+    networks:
+      - hng-net
+
+  # ----------------------------------------------------------------
+  # Nextcloud (pre-built HNG image – do not modify)
+  # ----------------------------------------------------------------
+  nextcloud:
+    image: kefaslungu/hng-nextcloud:latest
+    container_name: hng-nextcloud
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-nextcloud_secret}
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER:-admin}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD:-admin_secret}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${SERVER_IP:-localhost}
+    volumes:
+      - nextcloud-data:/var/www/html
+      - HNG-nginx-logs:/var/log/nginx:ro    # READ-ONLY mount per requirements
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - hng-net
+
+  # ----------------------------------------------------------------
+  # MariaDB for Nextcloud
+  # ----------------------------------------------------------------
+  db:
+    image: mariadb:10.11
+    container_name: hng-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_secret}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-nextcloud_secret}
+    volumes:
+      - nextcloud-db:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - hng-net
+
+  # ----------------------------------------------------------------
+  # Anomaly detection daemon
+  # Mounts the log volume READ-ONLY, needs NET_ADMIN for iptables.
+  # ----------------------------------------------------------------
+  detector:
+    build:
+      context: ./detector
+      dockerfile: Dockerfile
+    container_name: hng-detector
+    volumes:
+      - HNG-nginx-logs:/var/log/nginx:ro     # READ-ONLY per requirements
+      - ./detector/config.yaml:/app/config.yaml:ro
+      - /var/log/detector:/var/log/detector  # audit log on host
+    ports:
+      - "8080:8080"                           # dashboard
+    cap_add:
+      - NET_ADMIN                             # required for iptables
+    network_mode: host                        # so iptables rules apply to host traffic
+    restart: unless-stopped
+    environment:
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+
+networks:
+  hng-net:
+    driver: bridge
