@@ -5,7 +5,7 @@
 **Server IP:** 34.228.52.59
 **Metrics Dashboard:** http://34.228.52.59:8080
 **GitHub Repo:** https://github.com/kachi-cmd/hng-stage3-devsecops
-**Blog Post:** https://hashnode.com/edit/cmoiio02y004z2eki153sd6gh
+**Blog Post:** https://kachi-the-localman.hashnode.dev/ddos-detection-engine
 
 ---
 
