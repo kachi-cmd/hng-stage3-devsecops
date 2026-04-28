@@ -2,10 +2,10 @@
 
 > Real-time DDoS / anomaly detection daemon for cloud.ng (HNG DevSecOps Stage 7)
 
-**Server IP:** `<YOUR_VPS_IP>`
-**Metrics Dashboard:** `http://<YOUR_VPS_IP>:8080` (live during grading)
-**GitHub Repo:** `https://github.com/<your-username>/hng-devsecops`
-**Blog Post:** `https://<your-blog-link>`
+**Server IP:** 34.228.52.59
+**Metrics Dashboard:** http://34.228.52.59:8080
+**GitHub Repo:** https://github.com/kachi-cmd/hng-stage3-devsecops
+**Blog Post:** https://hashnode.com/edit/cmoiio02y004z2eki153sd6gh
 
 ---
 
