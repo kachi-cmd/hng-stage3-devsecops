@@ -225,7 +225,7 @@ sudo usermod -aG docker $USER
 ### 3. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/hng-devsecops.git
+git clone https://github.com/kachi-cmd/hng-stage3-devsecops.git
 cd hng-devsecops
 ```
 
