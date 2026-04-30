@@ -275,7 +275,7 @@ curl http://localhost:8080/health
 ### 9. Confirm Nextcloud is accessible
 
 ```bash
-curl -I http://<YOUR_VPS_IP>/
+curl -I http://34.228.52.59/
 # Should return 200 or 302 (Nextcloud login redirect)
 ```
 
@@ -315,7 +315,7 @@ All required screenshots are in the `screenshots/` directory.
 
 ## Blog Post
 
-[Link to blog post]
+https://kachi-the-localman.hashnode.dev/ddos-detection-engine
 
 ---
 
